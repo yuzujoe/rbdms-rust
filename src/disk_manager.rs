@@ -10,6 +10,8 @@ pub struct DiskManager {
     next_page_id: u64,
 }
 
+pub struct PageId(pub u64) {}
+
 impl DiskManager {
     // コンストラクタ
     pub fn new(heap_file: File) -> io::Result<Self> {
@@ -31,7 +33,11 @@ impl DiskManager {
         Self::new(heap_file)
     }
     // 新しいページIDを採番する
-    pub fn allovate_page(&mut self) -> PageId {}
+    pub fn allocate_page(&mut self) -> PageId {
+        let page_id = self.next_page_id;
+        self.next_page_id += 1;
+        PageId(page_id)
+    }
     //  ページのデータを読み出す
     pub fn read_page_data(&mut self, page_id: PageId, data: &[u8]) -> io::Result<()> {}
     // データをページに書き出す
