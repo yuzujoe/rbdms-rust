@@ -1,3 +1,4 @@
+use std::fs::File;
 use std::io;
 use std::path::Path;
 use std::fs::OpenOptions;
@@ -6,14 +7,29 @@ pub struct DiskManager {
     // ヒープファイルのファイルディスクリプタ
     heap_file: File,
     // 採番するページIDを決めるカウンタ
-    nest_page: u64,
+    next_page_id: u64,
 }
 
 impl DiskManager {
     // コンストラクタ
-    pub fn new(data_file: File) -> io::Result<Self> {}
+    pub fn new(heap_file: File) -> io::Result<Self> {
+        let heap_file_size = heap_file.metadata()?.len();
+        let next_page_id
+            = heap_file_size / PAGE_SIZE as u64;
+        Ok(Self {
+            heap_file,
+            next_page_id,
+        })
+    }
     // ファイルパスを指定して開く
-    pub fn open(data_file_path: impl AsRef<Path>) -> io::Result<Self> {}
+    pub fn open(heap_file_path: impl AsRef<Path>) -> io::Result<Self> {
+        let heap_file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .open(heap_file_path)?;
+        Self::new(heap_file)
+    }
     // 新しいページIDを採番する
     pub fn allovate_page(&mut self) -> PageId {}
     //  ページのデータを読み出す
