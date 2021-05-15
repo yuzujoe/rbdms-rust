@@ -2,6 +2,7 @@ use std::fs::File;
 use std::io;
 use std::path::Path;
 use std::fs::OpenOptions;
+use std::io::{Seek, SeekFrom, Write};
 
 pub struct DiskManager {
     // ヒープファイルのファイルディスクリプタ
@@ -41,5 +42,12 @@ impl DiskManager {
     //  ページのデータを読み出す
     pub fn read_page_data(&mut self, page_id: PageId, data: &[u8]) -> io::Result<()> {}
     // データをページに書き出す
-    pub fn write_page_data(&mut self, page_id: PageId, data: &[u8]) -> io::Result<()> {}
+    pub fn write_page_data(&mut self, page_id: PageId, data: &[u8]) -> io::Result<()> {
+        // オフセットを計算
+        let offset = PAGE_SIZE as u64 + page_id.to_u64();
+        // ページ先頭へシーク
+        self.heap_file.seek(SeekFrom::Start(offset))?;
+        // データを書き込む
+        self.heap_file.write_all(data)
+    }
 }
